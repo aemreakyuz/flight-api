@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +41,7 @@ public class FlightServiceImpl implements FlightService {
 
     public Flight updateFlight(Long flightId, BigDecimal price, Airport departureAirport, Airport arrivalAirport, LocalDate departureDate, LocalDate arrivalDate) {
         Optional<Flight> flightToUpdate = flightRepository.findById(flightId);
-        if(flightToUpdate.isPresent()){
+        if (flightToUpdate.isPresent()) {
             Flight existingFlight = flightToUpdate.get();
             if (price != null) {
                 existingFlight.setPrice(price);
@@ -65,7 +66,7 @@ public class FlightServiceImpl implements FlightService {
 
     public Airport findDepartureAirportByFlightId(Long flightId) {
         Optional<Flight> flightOptional = flightRepository.findById(flightId);
-        if(flightOptional.isPresent()){
+        if (flightOptional.isPresent()) {
             Flight flight = flightOptional.get();
             return flight.getDepartureAirport();
         }
@@ -74,7 +75,7 @@ public class FlightServiceImpl implements FlightService {
 
     public Airport findArrivalAirportByFlightId(Long flightId) {
         Optional<Flight> flightOptional = flightRepository.findById(flightId);
-        if(flightOptional.isPresent()){
+        if (flightOptional.isPresent()) {
             Flight flight = flightOptional.get();
             return flight.getArrivalAirport();
         }
@@ -83,7 +84,7 @@ public class FlightServiceImpl implements FlightService {
 
     public LocalDate findDepartureDateById(Long flightId) {
         Optional<Flight> flightOptional = flightRepository.findById(flightId);
-        if(flightOptional.isPresent()){
+        if (flightOptional.isPresent()) {
             Flight flight = flightOptional.get();
             return flight.getDepartureDate();
         }
@@ -92,7 +93,7 @@ public class FlightServiceImpl implements FlightService {
 
     public LocalDate findArrivalDateById(Long flightId) {
         Optional<Flight> flightOptional = flightRepository.findById(flightId);
-        if(flightOptional.isPresent()){
+        if (flightOptional.isPresent()) {
             Flight flight = flightOptional.get();
             return flight.getArrivalDate();
         }
@@ -104,14 +105,30 @@ public class FlightServiceImpl implements FlightService {
     }
 
     public List<Flight> findDepartingFlights() {
-        return null;
+
+        LocalDate currentDate = LocalDate.now();
+        return flightRepository.findByDepartureDateAfter(currentDate);
+
     }
 
     public List<Flight> findArrivingFlights() {
-        return null;
+        LocalDate currentDate = LocalDate.now();
+        return flightRepository.findByArrivalDateBefore(currentDate);
     }
 
-    public List<Flight> searchFlightsWithOneWayOrToWay(LocalDate departureDate, LocalDate arrivalDate) {
-        return null;
+    public List<Flight> searchFlights(Long flightId) {
+        Optional<Flight> optionalFlight = flightRepository.findById(flightId);
+        if(optionalFlight.isPresent()){
+            Flight flight = optionalFlight.get();
+            if(flight.getArrivalDate() == null){
+                List<Flight> oneWayFlight = new ArrayList<>();
+                oneWayFlight.add(flight);
+                return oneWayFlight;
+            }
+            else{
+
+            }
+        }
+        return new ArrayList<>();
     }
 }

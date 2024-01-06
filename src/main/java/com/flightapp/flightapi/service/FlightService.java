@@ -38,6 +38,6 @@ public interface FlightService {
 
     List<Flight> findArrivingFlights();
 
-    List<Flight> searchFlightsWithOneWayOrToWay(LocalDate departureDate, LocalDate arrivalDate);
+    List<Flight> searchFlights(Long flightId);
 
 }
