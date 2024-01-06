@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Currency;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +22,9 @@ public class Flight {
     private long id;
 
     @Column(name = "price")
-    private double price;
+    private BigDecimal price;
+
+    private Currency currency;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
             CascadeType.REFRESH})
