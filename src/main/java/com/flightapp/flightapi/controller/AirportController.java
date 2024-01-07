@@ -46,7 +46,7 @@ public class AirportController {
     }
 
     @DeleteMapping("/{id}")
-    public AirportResponse deleteAirport(@PathVariable Long id) {
+    public Airport deleteAirport(@PathVariable Long id) {
 
         return airportService.deleteAirportById(id);
     }

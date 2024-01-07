@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class AirportRepositoryTest {
@@ -51,4 +50,12 @@ public class AirportRepositoryTest {
         assertNotNull(foundAirport);
         assertEquals("Berlin", foundAirport.getCity());
     }
+
+    @DisplayName("Can't find airport by city")
+    @Test
+    void findByCityFail(){
+        Airport foundAirport = airportRepository.findByCity("Cairo");
+        assertNull(foundAirport);
+    }
+
 }

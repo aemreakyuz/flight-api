@@ -14,7 +14,7 @@ public interface AirportService {
 
     AirportResponse addNewAirport(Airport airport);
 
-    AirportResponse deleteAirportById(Long id);
+    Airport deleteAirportById(Long id);
 
     Airport findById(Long id);
 

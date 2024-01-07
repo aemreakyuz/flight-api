@@ -33,11 +33,14 @@ public class AirportServiceImpl implements AirportService{
          return DtoConverter.convertToAirportResponse(airport);
         }
 
-    public AirportResponse deleteAirportById(Long id) {
+    public Airport deleteAirportById(Long id) {
         Airport airportToBeDeleted = findById(id);
-        airportRepository.delete(airportToBeDeleted);
-        return DtoConverter.convertToAirportResponse(airportToBeDeleted);
+        if(airportToBeDeleted != null){
+            airportRepository.delete(airportToBeDeleted);
+            return airportToBeDeleted;
+        }
 
+        return null;
         // TODO=> Error Handling
 
     }
