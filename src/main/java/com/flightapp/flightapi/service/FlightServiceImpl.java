@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +26,6 @@ public class FlightServiceImpl implements FlightService {
     public FlightServiceImpl(FlightRepository flightRepository, AirportRepository airportRepository) {
         this.flightRepository = flightRepository;
         this.airportRepository = airportRepository;
-
     }
 
     public Flight findById(Long id) {
@@ -121,30 +120,16 @@ public class FlightServiceImpl implements FlightService {
         return flightRepository.findAll();
     }
 
-    public List<Flight> findDepartingFlights() {
 
-        LocalDate currentDate = LocalDate.now();
-        return flightRepository.findByDepartureDateAfter(currentDate);
+    public List<Flight> searchFlights(String departureAirport, String arrivalAirport, LocalDate departureDate, LocalDate arrivalDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+        return flightRepository.searchReturnFlights(departureAirport, arrivalAirport, departureDate.format(formatter), arrivalDate.format(formatter));
 
     }
 
-    public List<Flight> findArrivingFlights() {
-        LocalDate currentDate = LocalDate.now();
-        return flightRepository.findByArrivalDateBefore(currentDate);
-    }
+    public List<Flight> searchFlights(String departureAirport, String arrivalAirport, LocalDate departureDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+        return flightRepository.searchOneWayFlights(departureAirport, arrivalAirport, departureDate.format(formatter));
 
-    public List<Flight> searchFlights(Long flightId) {
-        Optional<Flight> optionalFlight = flightRepository.findById(flightId);
-        if (optionalFlight.isPresent()) {
-            Flight flight = optionalFlight.get();
-            if (flight.getArrivalDate() == null) {
-                List<Flight> oneWayFlight = new ArrayList<>();
-                oneWayFlight.add(flight);
-                return oneWayFlight;
-            } else {
-
-            }
-        }
-        return new ArrayList<>();
     }
 }

@@ -25,20 +25,12 @@ public interface FlightService {
 
     Flight updateFlight(Long flightId,  BigDecimal price, Airport departureAirport, Airport arrivalAirport, LocalDate departureDate, LocalDate arrivalDate);
 
-    Airport findDepartureAirportByFlightId(Long flightId);
-
-    Airport findArrivalAirportByFlightId(Long flightId);
-
-    LocalDate findDepartureDateById(Long id);
-
-    LocalDate findArrivalDateById(Long id);
+    List<Flight> searchFlights(String departureAirport, String arrivalAirport, LocalDate departureDate, LocalDate arrivalDate);
+    List<Flight> searchFlights(String departureAirport, String arrivalAirport, LocalDate departureDate);
 
     List<Flight> findAll();
 
-    List<Flight> findDepartingFlights();
 
-    List<Flight> findArrivingFlights();
 
-    List<Flight> searchFlights(Long flightId);
 
 }

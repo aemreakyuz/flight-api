@@ -39,7 +39,6 @@ public class AirportController {
         return  airportService.findById(id);
     }
 
-
     @PostMapping("")
     public AirportResponse addAirport(@RequestBody Airport airport){
        airportService.addNewAirport(airport);
