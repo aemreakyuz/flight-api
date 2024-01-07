@@ -3,8 +3,10 @@ package com.flightapp.flightapi.service;
 import com.flightapp.flightapi.converter.DtoConverter;
 import com.flightapp.flightapi.dto.AirportResponse;
 import com.flightapp.flightapi.entity.Airport;
+import com.flightapp.flightapi.exception.AirportException;
 import com.flightapp.flightapi.repository.AirportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +31,10 @@ public class AirportServiceImpl implements AirportService{
     }
 
     public AirportResponse addNewAirport(Airport airport) {
+        Airport foundAirport = findByCity(airport.getCity());
+        if(foundAirport != null){
+            throw new AirportException("Airport already exists.", HttpStatus.BAD_REQUEST );
+        }
          airportRepository.save(airport);
          return DtoConverter.convertToAirportResponse(airport);
         }

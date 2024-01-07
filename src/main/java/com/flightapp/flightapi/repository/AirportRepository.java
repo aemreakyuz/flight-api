@@ -11,4 +11,5 @@ public interface AirportRepository extends JpaRepository<Airport, Long> {
     Airport findByCity(String city);
 
 
+
 }

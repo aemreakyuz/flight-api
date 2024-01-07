@@ -21,12 +21,11 @@ public class AirportController {
 
     private FlightService flightService;
 
+    @Autowired
     public AirportController(AirportService airportService, FlightService flightService) {
         this.airportService = airportService;
         this.flightService = flightService;
     }
-
-    @Autowired
 
 
     @GetMapping("/")
@@ -39,8 +38,9 @@ public class AirportController {
         return  airportService.findById(id);
     }
 
-    @PostMapping("/addAirport")
+    @PostMapping("")
     public AirportResponse addAirport(@RequestBody Airport airport){
+
        airportService.addNewAirport(airport);
        return new AirportResponse(airport.getId(), airport.getCity());
     }
@@ -58,7 +58,7 @@ public class AirportController {
             List<Flight> flights = flightService.findAll();
             if (flights != null) {
                 return flights.stream()
-                        .filter(flight -> flight.getArrivalAirport().equals(airport) || flight.getDepartureAirport().equals(airport))
+                        .filter(flight -> flight.getArrivalAirport().equals(airport) & flight.getDepartureAirport().equals(airport))
                         .collect(Collectors.toList());
             } else {
                 return Collections.emptyList();
