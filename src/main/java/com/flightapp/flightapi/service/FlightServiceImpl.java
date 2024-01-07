@@ -1,5 +1,7 @@
 package com.flightapp.flightapi.service;
 
+import com.flightapp.flightapi.converter.DtoConverter;
+import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.entity.Flight;
 import com.flightapp.flightapi.repository.AirportRepository;
@@ -24,6 +26,7 @@ public class FlightServiceImpl implements FlightService {
     public FlightServiceImpl(FlightRepository flightRepository, AirportRepository airportRepository) {
         this.flightRepository = flightRepository;
         this.airportRepository = airportRepository;
+
     }
 
     public Flight findById(Long id) {
@@ -33,20 +36,17 @@ public class FlightServiceImpl implements FlightService {
         //TODO => Error Handling, dto converter
     }
 
-    public Flight addFlight(Flight flight) {
-        Optional<Airport>  departureAirportOptional = airportRepository.findById(flight.getDepartureAirport().getId());
+    public FlightResponse addFlight(Flight flight) {
+        Optional<Airport> departureAirportOptional = airportRepository.findById(flight.getDepartureAirport().getId());
         Optional<Airport> arrivalAirportOptional = airportRepository.findById(flight.getArrivalAirport().getId());
-        if (departureAirportOptional.isPresent() && arrivalAirportOptional.isPresent()) {
+
+        if (departureAirportOptional.isPresent() & arrivalAirportOptional.isPresent()) {
             Airport departureAirport = departureAirportOptional.get();
-            Airport arrivalAirport = departureAirportOptional.get();
-            flight.setDepartureAirport(departureAirport);
-            flight.setArrivalAirport(arrivalAirport);
-            return flightRepository.save(flight);
-        } else if(departureAirportOptional.isPresent() && arrivalAirportOptional.isEmpty()){
-            Airport departureAirport = departureAirportOptional.get();
-            flight.setArrivalAirport(null);
-            return flightRepository.save(flight);
+            Airport arrivalAirport = arrivalAirportOptional.get();
+            flightRepository.save(flight);
+            return DtoConverter.convertToFlightResponse(flight, departureAirport, arrivalAirport);
         }
+
         return null;
     }
 
@@ -135,14 +135,13 @@ public class FlightServiceImpl implements FlightService {
 
     public List<Flight> searchFlights(Long flightId) {
         Optional<Flight> optionalFlight = flightRepository.findById(flightId);
-        if(optionalFlight.isPresent()){
+        if (optionalFlight.isPresent()) {
             Flight flight = optionalFlight.get();
-            if(flight.getArrivalDate() == null){
+            if (flight.getArrivalDate() == null) {
                 List<Flight> oneWayFlight = new ArrayList<>();
                 oneWayFlight.add(flight);
                 return oneWayFlight;
-            }
-            else{
+            } else {
 
             }
         }

@@ -1,5 +1,6 @@
 package com.flightapp.flightapi.service;
 
+import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.entity.Flight;
 
@@ -18,7 +19,7 @@ public interface FlightService {
 
     Flight findById(Long flightId);
 
-    Flight addFlight(Flight flight);
+    FlightResponse addFlight(Flight flight);
 
     Flight removeFlightById(Long flightId);
 

@@ -1,6 +1,7 @@
 package com.flightapp.flightapi.controller;
 
 
+import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.entity.Flight;
 import com.flightapp.flightapi.service.AirportService;
 import com.flightapp.flightapi.service.FlightService;
@@ -26,7 +27,7 @@ public class FlightController {
 
 
     @PostMapping("")
-    public Flight addFlight(@RequestBody Flight flight) {
+    public FlightResponse addFlight(@RequestBody Flight flight) {
         return flightService.addFlight(flight);
     }
 }
