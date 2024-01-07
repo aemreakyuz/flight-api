@@ -2,6 +2,8 @@ package com.flightapp.flightapi.service;
 
 import com.flightapp.flightapi.entity.Airport;
 
+import java.util.List;
+
 public interface AirportService {
 
     //TODO
@@ -15,5 +17,6 @@ public interface AirportService {
 
     Airport findById(Long id);
 
+    List<Airport> findAll();
 
 }

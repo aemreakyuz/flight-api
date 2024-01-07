@@ -5,6 +5,7 @@ import com.flightapp.flightapi.repository.AirportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,6 +16,10 @@ public class AirportServiceImpl implements AirportService{
     @Autowired
     public AirportServiceImpl(AirportRepository airportRepository) {
         this.airportRepository = airportRepository;
+    }
+
+    public List<Airport> findAll() {
+        return airportRepository.findAll();
     }
 
     public Airport addNewAirport(Airport airport) {
