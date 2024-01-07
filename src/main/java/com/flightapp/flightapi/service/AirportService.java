@@ -18,6 +18,8 @@ public interface AirportService {
 
     Airport findById(Long id);
 
+    Airport findByCity(String city);
+
     List<Airport> findAll();
 
 }

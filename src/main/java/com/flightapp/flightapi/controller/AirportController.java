@@ -3,11 +3,15 @@ package com.flightapp.flightapi.controller;
 
 import com.flightapp.flightapi.dto.AirportResponse;
 import com.flightapp.flightapi.entity.Airport;
+import com.flightapp.flightapi.entity.Flight;
 import com.flightapp.flightapi.service.AirportService;
+import com.flightapp.flightapi.service.FlightService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/airport")
@@ -15,11 +19,15 @@ public class AirportController {
 
     private AirportService airportService;
 
+    private FlightService flightService;
+
+    public AirportController(AirportService airportService, FlightService flightService) {
+        this.airportService = airportService;
+        this.flightService = flightService;
+    }
+
     @Autowired
 
-    public AirportController(AirportService airportService) {
-        this.airportService = airportService;
-    }
 
     @GetMapping("/")
     public List<Airport> findAll(){
@@ -41,6 +49,24 @@ public class AirportController {
     public AirportResponse deleteAirport(@PathVariable Long id) {
 
         return airportService.deleteAirportById(id);
+    }
+
+    @GetMapping("/flights/{id}")
+    public List<Flight> getFlights(@PathVariable Long id){
+        Airport airport = airportService.findById(id);
+        if (airport != null){
+            List<Flight> flights = flightService.findAll();
+            if (flights != null) {
+                return flights.stream()
+                        .filter(flight -> flight.getArrivalAirport().equals(airport) || flight.getDepartureAirport().equals(airport))
+                        .collect(Collectors.toList());
+            } else {
+                return Collections.emptyList();
+            }
+        } else {
+            return Collections.emptyList();
+        }
+
     }
 
 }

@@ -24,6 +24,10 @@ public class AirportServiceImpl implements AirportService{
         return airportRepository.findAll();
     }
 
+    public Airport findByCity(String city) {
+        return airportRepository.findByCity(city);
+    }
+
     public AirportResponse addNewAirport(Airport airport) {
          airportRepository.save(airport);
          return DtoConverter.convertToAirportResponse(airport);

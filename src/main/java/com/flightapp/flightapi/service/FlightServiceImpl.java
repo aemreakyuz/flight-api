@@ -2,6 +2,7 @@ package com.flightapp.flightapi.service;
 
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.entity.Flight;
+import com.flightapp.flightapi.repository.AirportRepository;
 import com.flightapp.flightapi.repository.FlightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,13 @@ import java.util.Optional;
 public class FlightServiceImpl implements FlightService {
 
     private FlightRepository flightRepository;
+    private AirportRepository airportRepository;
+
 
     @Autowired
-    public FlightServiceImpl(FlightRepository flightRepository) {
+    public FlightServiceImpl(FlightRepository flightRepository, AirportRepository airportRepository) {
         this.flightRepository = flightRepository;
+        this.airportRepository = airportRepository;
     }
 
     public Flight findById(Long id) {
@@ -30,7 +34,20 @@ public class FlightServiceImpl implements FlightService {
     }
 
     public Flight addFlight(Flight flight) {
-        return flightRepository.save(flight);
+        Optional<Airport>  departureAirportOptional = airportRepository.findById(flight.getDepartureAirport().getId());
+        Optional<Airport> arrivalAirportOptional = airportRepository.findById(flight.getArrivalAirport().getId());
+        if (departureAirportOptional.isPresent() && arrivalAirportOptional.isPresent()) {
+            Airport departureAirport = departureAirportOptional.get();
+            Airport arrivalAirport = departureAirportOptional.get();
+            flight.setDepartureAirport(departureAirport);
+            flight.setArrivalAirport(arrivalAirport);
+            return flightRepository.save(flight);
+        } else if(departureAirportOptional.isPresent() && arrivalAirportOptional.isEmpty()){
+            Airport departureAirport = departureAirportOptional.get();
+            flight.setArrivalAirport(null);
+            return flightRepository.save(flight);
+        }
+        return null;
     }
 
     public Flight removeFlightById(Long flightId) {
