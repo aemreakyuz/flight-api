@@ -1,5 +1,7 @@
 package com.flightapp.flightapi.service;
 
+import com.flightapp.flightapi.converter.DtoConverter;
+import com.flightapp.flightapi.dto.AirportResponse;
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.repository.AirportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +24,25 @@ public class AirportServiceImpl implements AirportService{
         return airportRepository.findAll();
     }
 
-    public Airport addNewAirport(Airport airport) {
-        return airportRepository.save(airport);
+    public AirportResponse addNewAirport(Airport airport) {
+         airportRepository.save(airport);
+         return DtoConverter.convertToAirportResponse(airport);
         }
 
-    public Airport deleteAirportById(Long id) {
+    public AirportResponse deleteAirportById(Long id) {
         Airport airportToBeDeleted = findById(id);
         airportRepository.delete(airportToBeDeleted);
-        return airportToBeDeleted;
+        return DtoConverter.convertToAirportResponse(airportToBeDeleted);
 
-        // TODO=> Error Handling, dto converter
+        // TODO=> Error Handling
 
     }
 
     public Airport findById(Long id) {
         Optional<Airport> airportOptional = airportRepository.findById(id);
+
         return airportOptional.orElse(null);
 
-        //TODO => Error Handling, dto converter
+        //TODO => Error Handling
     }
 }

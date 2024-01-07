@@ -1,5 +1,6 @@
 package com.flightapp.flightapi.service;
 
+import com.flightapp.flightapi.dto.AirportResponse;
 import com.flightapp.flightapi.entity.Airport;
 
 import java.util.List;
@@ -11,9 +12,9 @@ public interface AirportService {
     // deleteAirportById()
     // findById()
 
-    Airport addNewAirport(Airport airport);
+    AirportResponse addNewAirport(Airport airport);
 
-    Airport deleteAirportById(Long id);
+    AirportResponse deleteAirportById(Long id);
 
     Airport findById(Long id);
 

@@ -1,6 +1,7 @@
 package com.flightapp.flightapi.controller;
 
 
+import com.flightapp.flightapi.dto.AirportResponse;
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.service.AirportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,15 @@ public class AirportController {
     }
 
     @PostMapping("/addAirport")
-    public Airport addAirport(@RequestBody Airport airport){
-        return airportService.addNewAirport(airport);
+    public AirportResponse addAirport(@RequestBody Airport airport){
+       airportService.addNewAirport(airport);
+       return new AirportResponse(airport.getId(), airport.getCity());
+    }
+
+    @DeleteMapping("/{id}")
+    public AirportResponse deleteAirport(@PathVariable Long id) {
+
+        return airportService.deleteAirportById(id);
     }
 
 }
