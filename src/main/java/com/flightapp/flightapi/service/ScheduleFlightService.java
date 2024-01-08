@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Random;
 
@@ -18,7 +19,7 @@ public class ScheduleFlightService {
     @Autowired
     private AirportService airportService;
 
-
+    //başka proje oluşturup local de bu metodu çalıştır. //rest template
     @Scheduled(cron = "30 9 * * * ?", zone = "Europe/Paris")
     public void addScheduledFlight() {
 
@@ -27,14 +28,31 @@ public class ScheduleFlightService {
         String[] airports = {"Istanbul", "Berlin", "Moscow", "Milan", "Dublin", "Dubai"};
 
         String departureCity = airports[random.nextInt(airports.length)];
+        String arrivalCity = airports[random.nextInt(airports.length)];
+
+        Airport departureAirport = airportService.findByCity(departureCity);
+        Airport arrivalAirport = airportService.findByCity(arrivalCity);
+
+        while (arrivalCity.equals(departureCity)) {
+            arrivalCity = airports[random.nextInt(airports.length)];
+             arrivalAirport = airportService.findByCity(arrivalCity);
+        }
+
+        BigDecimal minPrice = BigDecimal.valueOf(100);
+        BigDecimal maxPrice = BigDecimal.valueOf(1000);
+        BigDecimal randomPrice = minPrice.add(BigDecimal.valueOf(random.nextDouble()).multiply(maxPrice.subtract(minPrice)));
 
 
-        Airport departureAirport = airportService.findByCity("DepartureCity");
-        Airport arrivalAirport = airportService.findByCity("ArrivalCity");
+        LocalDate currentDate = LocalDate.now();
+        LocalDate departureDate = currentDate.plusDays(random.nextInt(30));
+        LocalDate arrivalDate = departureDate.plusDays(random.nextInt(10));
 
         Flight scheduledFlight = new Flight();
         scheduledFlight.setDepartureAirport(departureAirport);
         scheduledFlight.setArrivalAirport(arrivalAirport);
+        scheduledFlight.setPrice(randomPrice);
+        scheduledFlight.setDepartureDate(departureDate);
+        scheduledFlight.setArrivalDate(arrivalDate);
 
         flightService.addFlight(scheduledFlight);
 

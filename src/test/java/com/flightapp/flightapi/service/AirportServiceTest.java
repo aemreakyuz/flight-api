@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -76,7 +77,7 @@ public class AirportServiceTest {
         given(airportRepository.findById(Long.valueOf(1))).willReturn(Optional.of(airport));
         AirportResponse removedAirport = airportService.deleteAirportById(airport.getId());
         verify(airportRepository).delete(airport);
-        //assertEquals("Dublin", removedAirport.getCity());
+        assertEquals("Dublin", removedAirport.city());
     }
 
 

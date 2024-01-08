@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,17 +28,12 @@ public class FlightService {
     }
 
     public List<Flight> searchFlights(LocalDate departureDate,LocalDate arrivalDate, String departureAirport, String arrivalAirport ) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-        String formattedDepartureDate = departureDate.format(formatter);
-        String formattedArrivalDate = arrivalDate.format(formatter);
+        List<Flight> response = flightRepository.searchReturnFlights(departureDate, arrivalDate, departureAirport, arrivalAirport);
 
-        return flightRepository.searchReturnFlights(departureDate, arrivalDate, departureAirport, arrivalAirport);
+        return response;
     }
 
     public List<Flight> searchFlights(LocalDate departureDate, String departureAirport, String arrivalAirport ) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-        String formattedDepartureDate = departureDate.format(formatter);
-
         return flightRepository.searchOneWayFlights(departureDate, departureAirport, arrivalAirport);
     }
 
@@ -70,6 +64,8 @@ public class FlightService {
         return flightToRemove;
     }
 
+
+    //Flight objesi parametre,
     public Flight updateFlight(Long flightId, BigDecimal price, Airport departureAirport, Airport arrivalAirport, LocalDate departureDate, LocalDate arrivalDate) {
         Optional<Flight> flightToUpdate = flightRepository.findById(flightId);
         if (flightToUpdate.isPresent()) {

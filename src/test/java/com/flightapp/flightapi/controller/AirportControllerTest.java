@@ -30,6 +30,7 @@ public class AirportControllerTest {
     @MockBean
     private AirportService airportService;
 
+
     @Test
     void save() throws Exception{
         Airport airport = new Airport();

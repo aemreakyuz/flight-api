@@ -28,13 +28,10 @@ public class FlightController {
     }
 
 
-
     @GetMapping("/search")
     public List<Flight> searchFlights(@RequestParam(name = "departureDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,@RequestParam(name = "arrivalDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrivalDate, @RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport
     ) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-        String formattedDepartureDate = departureDate.format(formatter);
-        String formattedArrivalDate = arrivalDate.format(formatter);
         List<Flight> returnValues = flightService.searchFlights(departureDate, arrivalDate, departureAirport, arrivalAirport);
         return returnValues;
     }
@@ -42,7 +39,6 @@ public class FlightController {
 //    @GetMapping("/search")
 //    public List<Flight> searchFlights(@RequestParam(name = "departureDate") String departureDate, @RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport
 //    ) {
-//
 //        return null;
 //    }
 
