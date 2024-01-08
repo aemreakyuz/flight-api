@@ -1,6 +1,7 @@
 package com.flightapp.flightapi.service;
 
 import com.flightapp.flightapi.converter.DtoConverter;
+import com.flightapp.flightapi.dto.AirportResponse;
 import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.dto.RoundTripFlightResponse;
 import com.flightapp.flightapi.entity.Airport;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FlightService {
@@ -34,13 +36,15 @@ public class FlightService {
     public List<RoundTripFlightResponse> searchFlightsWithReturn(LocalDate departureDate, LocalDate arrivalDate, String departureAirport, String arrivalAirport) {
         List<Flight> flights = flightRepository.searchReturnFlights(departureDate, arrivalDate, departureAirport, arrivalAirport);
         List<RoundTripFlightResponse> response = new ArrayList<>();
+        AirportResponse departure = DtoConverter.convertToAirportResponse(airportRepository.findByCity(departureAirport));
+        AirportResponse arrival = DtoConverter.convertToAirportResponse(airportRepository.findByCity(arrivalAirport));
         for(Flight flight : flights){
 
-            FlightResponse departingFlight = DtoConverter.convertToFlightResponse(flight, departureAirport, arrivalAirport);
+            FlightResponse departingFlight = DtoConverter.convertToFlightResponse(flight, departure, arrival);
 
             LocalDate newDepartureDate = departingFlight.arrivalDate();
 
-            FlightResponse arrivingFlight = DtoConverter.convertToFlightResponse(flight, arrivalAirport, departureAirport).withDepartureDate(newDepartureDate);
+            FlightResponse arrivingFlight = DtoConverter.convertToFlightResponse(flight, arrival, departure).withDepartureDate(newDepartureDate);
 
             RoundTripFlightResponse roundTrips = new RoundTripFlightResponse(departingFlight, arrivingFlight);
             response.add(roundTrips);
@@ -51,9 +55,11 @@ public class FlightService {
     public List<FlightResponse> searchFlightsOneWay(LocalDate departureDate, String departureAirport, String arrivalAirport) {
         List<Flight> flights = flightRepository.searchOneWayFlights(departureDate, departureAirport, arrivalAirport);
         List<FlightResponse> flightResponses = new ArrayList<>();
+        AirportResponse departure = DtoConverter.convertToAirportResponse(airportRepository.findByCity(departureAirport));
+        AirportResponse arrival = DtoConverter.convertToAirportResponse(airportRepository.findByCity(arrivalAirport));
 
         for (Flight flight : flights) {
-            FlightResponse flightResponse = DtoConverter.convertToFlightResponse(flight, departureAirport, arrivalAirport);
+            FlightResponse flightResponse = DtoConverter.convertToFlightResponse(flight, departure, arrival);
             flightResponses.add(flightResponse);
         }
 
@@ -67,6 +73,36 @@ public class FlightService {
         //TODO => Error Handling, dto converter
     }
 
+    public void saveFlightsFromApiResponse(List<FlightResponse> flightResponses) {
+        List<Flight> flights = flightResponses.stream()
+                .map(this::convertToFlight)
+                .collect(Collectors.toList());
+
+        flightRepository.saveAll(flights);
+    }
+
+    private Flight convertToFlight(FlightResponse flightResponse) {
+        Flight flight = new Flight();
+        flight.setPrice(flightResponse.price());
+
+        Airport departureAirport = airportRepository.findByCity(flightResponse.arrivalAirport().city());
+        if (departureAirport != null) {
+            flight.setDepartureAirport(departureAirport);
+        }
+
+        Airport arrivalAirport = airportRepository.findByCity(flightResponse.arrivalAirport().city());
+        if (arrivalAirport != null) {
+            flight.setArrivalAirport(arrivalAirport);
+        }
+
+
+        flight.setDepartureDate(flightResponse.departureDate());
+        flight.setArrivalDate(flightResponse.arrivalDate());
+
+
+        return flight;
+    }
+
     public List<?> addFlight(Flight flight) {
 
         Optional<Airport> departureAirportOptional = airportRepository.findById(flight.getDepartureAirport().getId());
@@ -77,7 +113,7 @@ public class FlightService {
             Airport arrivalAirport = arrivalAirportOptional.get();
 
             Flight savedDepartureFlight = flightRepository.save(flight);
-            FlightResponse departingFlightResponse = DtoConverter.convertToFlightResponse(savedDepartureFlight, departureAirport.getCity(), arrivalAirport.getCity());
+            FlightResponse departingFlightResponse = DtoConverter.convertToFlightResponse(savedDepartureFlight, new AirportResponse(departureAirport.getId(), departureAirport.getCity()), new AirportResponse(arrivalAirport.getId(), arrivalAirport.getCity()));
 
             if (flight.getArrivalDate() != null) {
                 Flight returnFlight = new Flight();
@@ -89,7 +125,7 @@ public class FlightService {
                 returnFlight.setArrivalDate(flight.getArrivalDate());
 
                 Flight savedReturnFlight = flightRepository.save(returnFlight);
-                FlightResponse returningFlightResponse = DtoConverter.convertToFlightResponse(savedReturnFlight, arrivalAirport.getCity(), departureAirport.getCity());
+                FlightResponse returningFlightResponse = DtoConverter.convertToFlightResponse(savedReturnFlight, new AirportResponse(arrivalAirport.getId(), arrivalAirport.getCity()), new AirportResponse(departureAirport.getId(), departureAirport.getCity()));
 
                 return List.of(new RoundTripFlightResponse(departingFlightResponse, returningFlightResponse));
             }
@@ -136,7 +172,7 @@ public class FlightService {
                 existingFlight.setArrivalDate(flight.getArrivalDate());
             }
             Flight updatedFlight = flightRepository.save(existingFlight);
-            return DtoConverter.convertToFlightResponse(updatedFlight, updatedFlight.getDepartureAirport().getCity(), updatedFlight.getArrivalAirport().getCity());
+            return DtoConverter.convertToFlightResponse(updatedFlight,new AirportResponse(updatedFlight.getId(), updatedFlight.getDepartureAirport().getCity()), new AirportResponse(updatedFlight.getId(), updatedFlight.getDepartureAirport().getCity()));
         }
 
         throw new FlightException("Flight not found", HttpStatus.NOT_FOUND);
