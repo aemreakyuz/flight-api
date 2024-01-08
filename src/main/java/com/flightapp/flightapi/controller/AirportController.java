@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/airport")
 public class AirportController {
 
+
+
     private AirportService airportService;
 
     private FlightService flightService;
