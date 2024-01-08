@@ -1,6 +1,7 @@
 package com.flightapp.flightapi.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,11 +26,11 @@ public class Airport {
 
 
     @OneToMany(mappedBy = "departureAirport", cascade = CascadeType.ALL)
-
+    @JsonIgnore
     private List<Flight> departingFlights;
 
 
     @OneToMany(mappedBy = "arrivalAirport", cascade = CascadeType.ALL)
-
+    @JsonIgnore
     private List<Flight> arrivingFlights;
 }

@@ -11,8 +11,8 @@ public class DtoConverter {
         return new AirportResponse(airport.getId(), airport.getCity());
     }
 
-    public static FlightResponse convertToFlightResponse(Flight flight, Airport departureAirport, Airport arrivalAirport){
-        return new FlightResponse(flight.getId(), flight.getPrice(), convertToAirportResponse(departureAirport), convertToAirportResponse(arrivalAirport), flight.getDepartureDate(), flight.getArrivalDate());
+    public static FlightResponse convertToFlightResponse(Flight flight, String departureAirport, String arrivalAirport){
+        return new FlightResponse(flight.getId(), flight.getPrice(), departureAirport, arrivalAirport, flight.getDepartureDate(), flight.getArrivalDate());
     }
 
 
