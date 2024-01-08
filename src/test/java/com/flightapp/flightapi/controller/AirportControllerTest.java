@@ -6,7 +6,10 @@ import com.flightapp.flightapi.converter.DtoConverter;
 import com.flightapp.flightapi.dto.AirportResponse;
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.service.AirportService;
+import com.flightapp.flightapi.service.FlightService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
 @WebMvcTest
 public class AirportControllerTest {
 
@@ -30,10 +34,14 @@ public class AirportControllerTest {
     @MockBean
     private AirportService airportService;
 
+    @MockBean
+    private FlightService flightService;
+
 
     @Test
     void save() throws Exception{
         Airport airport = new Airport();
+        airport.setId(2L);
         airport.setCity("Rome");
         AirportResponse expectedResponse = new AirportResponse(airport.getId(), airport.getCity());
         when(airportService.addNewAirport(airport)).thenReturn(expectedResponse);
@@ -42,7 +50,7 @@ public class AirportControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonToString(airport))
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.city").value("Rome"));
 
@@ -57,7 +65,7 @@ public class AirportControllerTest {
         when(airportService.findById(1L)).thenReturn(airport);
         when(airportService.deleteAirportById(airport.getId())).thenReturn(DtoConverter.convertToAirportResponse(airport));
 
-        mockMvc.perform(delete("/airport/{id}"))
+        mockMvc.perform(delete("/airport/{id}", airport.getId()))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.city").value("Berlin"));
