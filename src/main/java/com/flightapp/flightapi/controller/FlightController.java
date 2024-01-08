@@ -27,12 +27,12 @@ public class FlightController {
     }
 
 
-    @GetMapping("/search")
-    public String searchFlights(@RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport,
-                                      @RequestParam(name = "departureDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate, @RequestParam(name = "arrivalDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrivalDate) {
-       List<Flight> returnValues = flightService.searchFlights(departureAirport, arrivalAirport, departureDate, arrivalDate);
-      return returnValues.size() + "";
-    }
+//    @GetMapping("/search")
+//    public String searchFlights(@RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport,
+//                                      @RequestParam(name = "departureDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate, @RequestParam(name = "arrivalDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrivalDate) {
+//       List<Flight> returnValues = flightService.searchFlights(departureAirport, arrivalAirport, departureDate, arrivalDate);
+//      return returnValues.size() + "";
+//    }
 
     @GetMapping("/search")
     public List<Flight> searchFlights(@RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport,

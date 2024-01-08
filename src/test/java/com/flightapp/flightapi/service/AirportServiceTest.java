@@ -29,7 +29,7 @@ public class AirportServiceTest {
 
     @BeforeEach
     void setUp(){
-        airportService = new AirportServiceImpl(airportRepository);
+        airportService = new AirportService(airportRepository);
     }
 
     @Test
