@@ -1,6 +1,5 @@
 package com.flightapp.flightapi.repository;
 
-import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.entity.Flight;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,7 +27,7 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             "WHERE f.departureDate = :departureDate " +
             "AND f.arrivalAirport.id = (SELECT a.id FROM Airport a WHERE a.city = :arrivalAirport) " +
             "AND f.departureAirport.id = (SELECT a.id FROM Airport a WHERE a.city = :departureAirport)")
-    List<FlightResponse> searchOneWayFlights(@RequestParam("departureDate") LocalDate departureDate,
+    List<Flight> searchOneWayFlights(@RequestParam("departureDate") LocalDate departureDate,
                                              @RequestParam("arrivalAirport") String arrivalAirport,
                                              @RequestParam("departureAirport") String departureAirport);
 

@@ -47,7 +47,15 @@ public class FlightService {
     }
 
     public List<FlightResponse> searchFlightsOneWay(LocalDate departureDate, String departureAirport, String arrivalAirport) {
-        return flightRepository.searchOneWayFlights(departureDate, departureAirport, arrivalAirport);
+        List<Flight> flights = flightRepository.searchOneWayFlights(departureDate, departureAirport, arrivalAirport);
+        List<FlightResponse> flightResponses = new ArrayList<>();
+
+        for (Flight flight : flights) {
+            FlightResponse flightResponse = DtoConverter.convertToFlightResponse(flight, departureAirport, arrivalAirport);
+            flightResponses.add(flightResponse);
+        }
+
+        return flightResponses;
     }
 
     public Flight findById(Long id) {
