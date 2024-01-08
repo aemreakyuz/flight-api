@@ -5,6 +5,7 @@ import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.dto.RoundTripFlightResponse;
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.entity.Flight;
+import com.flightapp.flightapi.exception.AirportException;
 import com.flightapp.flightapi.exception.FlightException;
 import com.flightapp.flightapi.repository.AirportRepository;
 import com.flightapp.flightapi.repository.FlightRepository;
@@ -117,11 +118,16 @@ public class FlightService {
             if (flight.getPrice() != null) {
                 existingFlight.setPrice(flight.getPrice());
             }
-            if (flight.getDepartureAirport() != null) {
-                existingFlight.setDepartureAirport(flight.getDepartureAirport());
+            if (flight.getDepartureAirport() != null && flight.getDepartureAirport().getId() != null) {
+                Airport departureAirport = airportRepository.findById(flight.getDepartureAirport().getId())
+                        .orElseThrow(() -> new AirportException("Departure airport not found", HttpStatus.NOT_FOUND));
+                existingFlight.setDepartureAirport(departureAirport);
             }
-            if (flight.getArrivalAirport() != null) {
-                existingFlight.setArrivalAirport(flight.getArrivalAirport());
+
+            if (flight.getArrivalAirport() != null && flight.getArrivalAirport().getId() != null) {
+                Airport arrivalAirport = airportRepository.findById(flight.getArrivalAirport().getId())
+                        .orElseThrow(() -> new AirportException("Arrival airport not found", HttpStatus.NOT_FOUND));
+                existingFlight.setArrivalAirport(arrivalAirport);
             }
             if (flight.getDepartureDate() != null) {
                 existingFlight.setDepartureDate(flight.getDepartureDate());
