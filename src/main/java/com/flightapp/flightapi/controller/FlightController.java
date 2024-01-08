@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@Tag(name = "REST Apis for flight controller", description = "Can get, add, post, delete flights")
+@Tag(name = "REST Apis for flight controller", description = "Can get, add, update, delete flights")
 @RestController
 @RequestMapping("/flights")
 public class FlightController {
