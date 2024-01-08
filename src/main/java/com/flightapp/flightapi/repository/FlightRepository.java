@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface FlightRepository extends JpaRepository<Flight, Long> {
@@ -16,8 +17,8 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             "AND f.arrivalAirport.id = (SELECT a.id FROM Airport a WHERE a.city = :arrivalAirport) " +
             "AND f.departureAirport.id = (SELECT a.id FROM Airport a WHERE a.city = :departureAirport)")
     List<Flight> searchReturnFlights(
-                                     @RequestParam("departureDate") String departureDate,
-                                     @RequestParam("arrivalDate") String arrivalDate,
+                                     @RequestParam("departureDate") LocalDate departureDate,
+                                     @RequestParam("arrivalDate") LocalDate arrivalDate,
                                      @RequestParam("arrivalAirport") String arrivalAirport,
                                      @RequestParam("departureAirport") String departureAirport);
 
@@ -26,7 +27,7 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             "WHERE f.departureDate = :departureDate " +
             "AND f.arrivalAirport.id = (SELECT a.id FROM Airport a WHERE a.city = :arrivalAirport) " +
             "AND f.departureAirport.id = (SELECT a.id FROM Airport a WHERE a.city = :departureAirport)")
-    List<Flight> searchOneWayFlights(@RequestParam("departureDate") String departureDate,
+    List<Flight> searchOneWayFlights(@RequestParam("departureDate") LocalDate departureDate,
                                      @RequestParam("arrivalAirport") String arrivalAirport,
                                      @RequestParam("departureAirport") String departureAirport);
 

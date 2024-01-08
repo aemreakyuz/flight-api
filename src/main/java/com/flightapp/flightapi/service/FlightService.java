@@ -30,13 +30,17 @@ public class FlightService {
 
     public List<Flight> searchFlights(LocalDate departureDate,LocalDate arrivalDate, String departureAirport, String arrivalAirport ) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-        return flightRepository.searchReturnFlights(departureDate.format(formatter), arrivalDate.format(formatter), departureAirport, arrivalAirport);
+        String formattedDepartureDate = departureDate.format(formatter);
+        String formattedArrivalDate = arrivalDate.format(formatter);
 
+        return flightRepository.searchReturnFlights(departureDate, arrivalDate, departureAirport, arrivalAirport);
     }
 
     public List<Flight> searchFlights(LocalDate departureDate, String departureAirport, String arrivalAirport ) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-        return flightRepository.searchOneWayFlights(departureDate.format(formatter), departureAirport, arrivalAirport);
+        String formattedDepartureDate = departureDate.format(formatter);
+
+        return flightRepository.searchOneWayFlights(departureDate, departureAirport, arrivalAirport);
     }
 
     public Flight findById(Long id) {

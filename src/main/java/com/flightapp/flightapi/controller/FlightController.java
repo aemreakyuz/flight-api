@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -27,20 +28,23 @@ public class FlightController {
     }
 
 
-//    @GetMapping("/search")
-//    public String searchFlights(@RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport,
-//                                      @RequestParam(name = "departureDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate, @RequestParam(name = "arrivalDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrivalDate) {
-//       List<Flight> returnValues = flightService.searchFlights(departureAirport, arrivalAirport, departureDate, arrivalDate);
-//      return returnValues.size() + "";
-//    }
 
     @GetMapping("/search")
-    public List<Flight> searchFlights(@RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport,
-                                      @RequestParam(name = "departureDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate) {
-
-
-return null;
+    public List<Flight> searchFlights(@RequestParam(name = "departureDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,@RequestParam(name = "arrivalDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrivalDate, @RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport
+    ) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+        String formattedDepartureDate = departureDate.format(formatter);
+        String formattedArrivalDate = arrivalDate.format(formatter);
+        List<Flight> returnValues = flightService.searchFlights(departureDate, arrivalDate, departureAirport, arrivalAirport);
+        return returnValues;
     }
+
+//    @GetMapping("/search")
+//    public List<Flight> searchFlights(@RequestParam(name = "departureDate") String departureDate, @RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport
+//    ) {
+//
+//        return null;
+//    }
 
     @PostMapping("")
     public FlightResponse addFlight(@RequestBody Flight flight) {
