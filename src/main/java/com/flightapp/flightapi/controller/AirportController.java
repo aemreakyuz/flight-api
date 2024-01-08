@@ -65,12 +65,13 @@ public class AirportController {
     @ApiResponse(responseCode = "200", description = "If there is a match it returns status 200 otherwise it returns empty list")
     @GetMapping("/{city}/flights")
     public List<Flight> getFlights(@PathVariable String city){
-        Airport airport = airportService.findByCity(city);
+        String formattedCity = city.substring(0, 1).toUpperCase() + city.substring(1).toLowerCase();
+        Airport airport = airportService.findByCity(formattedCity);
         if (airport != null){
             List<Flight> flights = flightService.findAll();
             if (flights != null) {
                 return flights.stream()
-                        .filter(flight -> flight.getArrivalAirport().equals(airport) || flight.getDepartureAirport().equals(airport))
+                        .filter(flight -> flight.getArrivalAirport().getId().equals(airport.getId()) || flight.getDepartureAirport().getId().equals(airport.getId()))
                         .collect(Collectors.toList());
             } else {
                 return Collections.emptyList();
