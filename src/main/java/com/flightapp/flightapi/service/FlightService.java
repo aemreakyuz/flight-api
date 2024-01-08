@@ -5,12 +5,13 @@ import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.dto.RoundTripFlightResponse;
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.entity.Flight;
+import com.flightapp.flightapi.exception.FlightException;
 import com.flightapp.flightapi.repository.AirportRepository;
 import com.flightapp.flightapi.repository.FlightRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,18 +66,37 @@ public class FlightService {
         //TODO => Error Handling, dto converter
     }
 
-    public FlightResponse addFlight(Flight flight) {
+    public List<?> addFlight(Flight flight) {
+
         Optional<Airport> departureAirportOptional = airportRepository.findById(flight.getDepartureAirport().getId());
         Optional<Airport> arrivalAirportOptional = airportRepository.findById(flight.getArrivalAirport().getId());
 
-        if (departureAirportOptional.isPresent() & arrivalAirportOptional.isPresent()) {
+        if (departureAirportOptional.isPresent() && arrivalAirportOptional.isPresent()) {
             Airport departureAirport = departureAirportOptional.get();
             Airport arrivalAirport = arrivalAirportOptional.get();
-            flightRepository.save(flight);
-            return DtoConverter.convertToFlightResponse(flight, departureAirport.getCity(), arrivalAirport.getCity());
+
+            Flight savedDepartureFlight = flightRepository.save(flight);
+            FlightResponse departingFlightResponse = DtoConverter.convertToFlightResponse(savedDepartureFlight, departureAirport.getCity(), arrivalAirport.getCity());
+
+            if (flight.getArrivalDate() != null) {
+                Flight returnFlight = new Flight();
+
+                returnFlight.setPrice(flight.getPrice());
+                returnFlight.setDepartureAirport(arrivalAirport);
+                returnFlight.setArrivalAirport(departureAirport);
+                returnFlight.setDepartureDate(flight.getArrivalDate());
+                returnFlight.setArrivalDate(flight.getArrivalDate());
+
+                Flight savedReturnFlight = flightRepository.save(returnFlight);
+                FlightResponse returningFlightResponse = DtoConverter.convertToFlightResponse(savedReturnFlight, arrivalAirport.getCity(), departureAirport.getCity());
+
+                return List.of(new RoundTripFlightResponse(departingFlightResponse, returningFlightResponse));
+            }
+
+            return List.of(departingFlightResponse);
         }
 
-        return null;
+        throw new FlightException("Airport not found", HttpStatus.NOT_FOUND);
     }
 
     public Flight removeFlightById(Long flightId) {
@@ -86,30 +106,34 @@ public class FlightService {
     }
 
 
-    //Flight objesi parametre,
-    public Flight updateFlight(Long flightId, BigDecimal price, Airport departureAirport, Airport arrivalAirport, LocalDate departureDate, LocalDate arrivalDate) {
+    public FlightResponse updateFlight(Long flightId, Flight flight) {
+
         Optional<Flight> flightToUpdate = flightRepository.findById(flightId);
+
         if (flightToUpdate.isPresent()) {
+
             Flight existingFlight = flightToUpdate.get();
-            if (price != null) {
-                existingFlight.setPrice(price);
+
+            if (flight.getPrice() != null) {
+                existingFlight.setPrice(flight.getPrice());
             }
-            if (departureAirport != null) {
-                existingFlight.setDepartureAirport(departureAirport);
+            if (flight.getDepartureAirport() != null) {
+                existingFlight.setDepartureAirport(flight.getDepartureAirport());
             }
-            if (arrivalAirport != null) {
-                existingFlight.setArrivalAirport(arrivalAirport);
+            if (flight.getArrivalAirport() != null) {
+                existingFlight.setArrivalAirport(flight.getArrivalAirport());
             }
-            if (departureDate != null) {
-                existingFlight.setDepartureDate(departureDate);
+            if (flight.getDepartureDate() != null) {
+                existingFlight.setDepartureDate(flight.getDepartureDate());
             }
-            if (arrivalDate != null) {
-                existingFlight.setArrivalDate(arrivalDate);
+            if (flight.getArrivalDate() != null) {
+                existingFlight.setArrivalDate(flight.getArrivalDate());
             }
-            return flightRepository.save(existingFlight);
+            Flight updatedFlight = flightRepository.save(existingFlight);
+            return DtoConverter.convertToFlightResponse(updatedFlight, updatedFlight.getDepartureAirport().getCity(), updatedFlight.getArrivalAirport().getCity());
         }
 
-        return null;
+        throw new FlightException("Flight not found", HttpStatus.NOT_FOUND);
     }
 
 

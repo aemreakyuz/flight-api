@@ -50,12 +50,19 @@ public class FlightController {
     @Operation(summary = "Add One Way or Two Way Flights", description = "Send flight object and it will be added")
     @ApiResponse(responseCode = "200", description = "If Flight object is correctly sent it returns status code 200")
     @PostMapping("")
-    public FlightResponse addFlight(@RequestBody Flight flight) {
+    public List< ? > addFlight(@RequestBody Flight flight) {
         if(flight.getArrivalDate() == null){
             flight.setArrivalDate(null);
             return flightService.addFlight(flight);
         }
         return flightService.addFlight(flight);
     }
+
+    @Operation(summary = "Update flight info", description = "Send the desired flight object. some fields may be null")
+    @PutMapping("/{id}")
+    public FlightResponse update(@PathVariable Long id, @RequestBody Flight flightDetails){
+       return flightService.updateFlight(id, flightDetails);
+    }
+
 
 }
