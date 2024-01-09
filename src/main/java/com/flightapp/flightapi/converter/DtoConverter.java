@@ -40,7 +40,6 @@ public class DtoConverter {
         newFlight.setId(flightResponse.id());
         newFlight.setPrice(flightResponse.price());
 
-
         Airport departureAirport = airportRepository.findByCity(flightResponse.departureAirport().city());
         if (departureAirport != null) {
             newFlight.setDepartureAirport(departureAirport);
