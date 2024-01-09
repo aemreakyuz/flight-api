@@ -11,6 +11,8 @@ import java.util.List;
 public interface FlightRepository extends JpaRepository<Flight, Long> {
 
 
+
+
     @Query("SELECT f FROM Flight f " +
             "WHERE f.departureDate = :departureDate " +
             "AND f.arrivalDate = :arrivalDate " +

@@ -51,13 +51,13 @@ public class AirportService  {
             return DtoConverter.convertToAirportResponse(airportToBeDeleted);
         }
         return null;
-        // TODO=> Error Handling
+
     }
 
     public Airport findById(Long id) {
         Optional<Airport> airportOptional = airportRepository.findById(id);
         return airportOptional.orElse(null);
 
-        //TODO => Error Handling
+
     }
 }

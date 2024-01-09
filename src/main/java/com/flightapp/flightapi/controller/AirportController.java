@@ -59,6 +59,7 @@ public class AirportController {
     @Operation(summary = "Search airport with its id")
     @ApiResponse(responseCode = "200", description = "If there is a match it returns status 200 otherwise it returns 404")
     @DeleteMapping("/{id}")
+
     public AirportResponse deleteAirport(@PathVariable Long id) {
         return airportService.deleteAirportById(id);
     }

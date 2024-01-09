@@ -1,4 +1,4 @@
-package com.flightapp.flightapi.controller;
+package com.flightapp.flightapi.controller.user;
 
 
 import org.springframework.web.bind.annotation.GetMapping;
