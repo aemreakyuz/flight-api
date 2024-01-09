@@ -52,7 +52,7 @@ public class FlightController {
 
     @Operation(summary = "Search flights. One-way or Two-way", description = "Send the necessary details. If arrival date is not sent. It will return a one way ticket. Otherwise it will return two tickets: First one is for leaving and the second one is for return ticket")
     @ApiResponse(responseCode = "200", description = "If the necessary parameters are valid it returns status code 200")
-    @PostMapping("/search")
+    @GetMapping("/search")
     public List<?> searchFlights(@RequestParam(name = "departureDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate, @RequestParam(name = "arrivalDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrivalDate, @RequestParam(name = "departureAirport") String departureAirport, @RequestParam(name = "arrivalAirport") String arrivalAirport
     ) {
         log.info("entered search post");

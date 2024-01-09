@@ -37,8 +37,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/auth/users").hasAuthority("ADMIN");
                     auth.requestMatchers("/admin/**").hasAuthority("ADMIN");
                     auth.requestMatchers("/airport/**").hasAnyAuthority("USER", "ADMIN");
-                    auth.requestMatchers("/flights/**").hasAuthority("ADMIN");
                     auth.requestMatchers("/flights/search").hasAnyAuthority("USER", "ADMIN");
+                    auth.requestMatchers("/flights/**").hasAuthority("ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .formLogin(Customizer.withDefaults())

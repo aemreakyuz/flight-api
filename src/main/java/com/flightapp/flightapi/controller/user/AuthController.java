@@ -27,7 +27,7 @@ public class AuthController {
     @PostMapping("/register")
     public ApplicationUser register(@RequestBody RegisterUser registerUser){
         return authenticationService
-                .register(registerUser.fullName(), registerUser.email(), registerUser.password());
+                .register(registerUser);
     }
 
     @Operation(summary = "Get all the users if the user is Admin")
