@@ -1,61 +1,95 @@
 package com.flightapp.flightapi.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.flightapp.flightapi.converter.DtoConverter;
+import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.entity.Flight;
+import com.flightapp.flightapi.repository.AirportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Random;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 public class ScheduleFlightService {
 
-    @Autowired
     private FlightService flightService;
+    private AirportRepository airportRepository;
 
     @Autowired
-    private AirportService airportService;
+    public ScheduleFlightService(FlightService flightService, AirportRepository airportRepository) {
+        this.flightService = flightService;
+        this.airportRepository =airportRepository;
+    }
 
+    //Every day at 8am it fetches and saves data to database
+    @Scheduled(cron = "0 8 * * * ?", zone = "Europe/Paris")
+    public ResponseEntity<String> saveFlightsFromApi() {
 
-    @Scheduled(cron = "30 9 * * * ?", zone = "Europe/Paris")
-    public void addScheduledFlight() {
+        try {
+            String results = pingApi(); // Fetch data from the third-party API
 
-        Random random = new Random();
+            // Convert the received JSON data into a list of FlightResponse objects
+            ObjectMapper objectMapper = new ObjectMapper();
+            TypeFactory typeFactory = objectMapper.getTypeFactory();
+            objectMapper.registerModule(new JavaTimeModule());
 
-        String[] airports = {"Istanbul", "Berlin", "Moscow", "Milan", "Dublin", "Dubai"};
+            List<FlightResponse> apiFlights = objectMapper.readValue(results, typeFactory.constructCollectionType(List.class, FlightResponse.class));
 
-        String departureCity = airports[random.nextInt(airports.length)];
-        String arrivalCity = airports[random.nextInt(airports.length)];
+            List<Flight> flights = DtoConverter.convertToFlightList(apiFlights);
 
-        Airport departureAirport = airportService.findByCity(departureCity);
-        Airport arrivalAirport = airportService.findByCity(arrivalCity);
+            List<FlightResponse> responseList = new ArrayList<>();
 
-        while (arrivalCity.equals(departureCity)) {
-            arrivalCity = airports[random.nextInt(airports.length)];
-             arrivalAirport = airportService.findByCity(arrivalCity);
+            // Save the fetched flights to the database
+            for (Flight flight : flights) {
+                Airport departureAirport = airportRepository.findByCity(flight.getDepartureAirport().getCity());
+                Airport arrivalAirport = airportRepository.findByCity(flight.getArrivalAirport().getCity());
+
+                flight.setDepartureAirport(departureAirport);
+                flight.setArrivalAirport(arrivalAirport);
+                FlightResponse response = DtoConverter.convertFlightToFlightResponse(flight);
+                responseList.add(response);
+            }
+            flightService.saveFlightsFromApiResponse(responseList);
+
+            return ResponseEntity.ok("Flights saved successfully!");
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save flights");
         }
+    }
 
-        BigDecimal minPrice = BigDecimal.valueOf(100);
-        BigDecimal maxPrice = BigDecimal.valueOf(1000);
-        BigDecimal randomPrice = minPrice.add(BigDecimal.valueOf(random.nextDouble()).multiply(maxPrice.subtract(minPrice)));
+    public String pingApi() {
+        URL url = null;
+        try {
+            url = new URL("https://659c20abd565feee2dac7859.mockapi.io/flights/v1/flights");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
 
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer content = new StringBuffer();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            return content.toString();
+        } catch (Exception e) {
+            return "Failed to get flights";
 
-        LocalDate currentDate = LocalDate.now();
-        LocalDate departureDate = currentDate.plusDays(random.nextInt(30));
-        LocalDate arrivalDate = departureDate.plusDays(random.nextInt(10));
-
-        Flight scheduledFlight = new Flight();
-        scheduledFlight.setDepartureAirport(departureAirport);
-        scheduledFlight.setArrivalAirport(arrivalAirport);
-        scheduledFlight.setPrice(randomPrice);
-        scheduledFlight.setDepartureDate(departureDate);
-        scheduledFlight.setArrivalDate(arrivalDate);
-
-        flightService.addFlight(scheduledFlight);
-
-        System.out.println("Scheduled flight executed at: " + LocalDate.now());
+        }
     }
 }
