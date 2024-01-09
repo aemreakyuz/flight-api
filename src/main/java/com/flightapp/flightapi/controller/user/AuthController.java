@@ -6,10 +6,9 @@ import com.flightapp.flightapi.service.authentication.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Tag(name = "REST Apis for authorization controller", description = "Can register user")
@@ -30,5 +29,12 @@ public class AuthController {
         return authenticationService
                 .register(registerUser.fullName(), registerUser.email(), registerUser.password());
     }
+
+    @Operation(summary = "Get all the users if the user is Admin")
+    @GetMapping("/users")
+    public List<ApplicationUser> getUserList(){
+        return authenticationService.getUserList();
+    }
+
 
 }

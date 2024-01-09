@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "REST Apis for user controller", description = "Can get, add flights")
+@Tag(name = "REST Apis for user controller", description = "Can get flights")
 @RestController
 @RequestMapping("/user")
 public class UserController {

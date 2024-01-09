@@ -16,7 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -30,31 +29,20 @@ public class SecurityConfig {
         return new ProviderManager(provider);
     }
 
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource(){
-//        CorsConfiguration corsConfiguration = new CorsConfiguration();
-//        corsConfiguration.setAllowedOrigins(Arrays.asList("https://cdpn.io"));
-//        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-//        corsConfiguration.setAllowedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE));
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", corsConfiguration);
-//        return source;
-//    }
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
-//        httpSecurity.cors().configurationSource(corsConfigurationSource());
         return httpSecurity.csrf(csrf-> csrf.disable())
                 .authorizeHttpRequests(auth-> {
-                    auth.requestMatchers("/auth/**").permitAll();
+                    auth.requestMatchers("/auth/register").permitAll();
+                    auth.requestMatchers("/auth/users").hasAuthority("ADMIN");
                     auth.requestMatchers("/admin/**").hasAuthority("ADMIN");
-                    auth.requestMatchers("/airport/**").hasAuthority("USER");
-                    auth.requestMatchers("/flights/**").hasAnyAuthority("USER", "ADMIN");
+                    auth.requestMatchers("/airport/**").hasAnyAuthority("USER", "ADMIN");
+                    auth.requestMatchers("/flights/**").hasAuthority("ADMIN");
+                    auth.requestMatchers("/flights/search").hasAnyAuthority("USER", "ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
-
                 .build();
     }
 
