@@ -3,12 +3,15 @@ package com.flightapp.flightapi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.flightapp.flightapi.converter.DtoConverter;
 import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.dto.RoundTripFlightResponse;
+import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.entity.Flight;
+import com.flightapp.flightapi.repository.AirportRepository;
 import com.flightapp.flightapi.service.AirportService;
 import com.flightapp.flightapi.service.FlightService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +29,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,15 +43,17 @@ public class FlightController {
 
     private FlightService flightService;
     private AirportService airportService;
-
+    private AirportRepository airportRepository;
+    private DtoConverter dtoConverter;
 
     @Autowired
-    public FlightController(FlightService flightService, AirportService airportService) {
+    public FlightController(FlightService flightService, AirportService airportService, AirportRepository airportRepository,DtoConverter dtoConverter) {
         this.flightService = flightService;
         this.airportService = airportService;
-
-
+        this.airportRepository = airportRepository;
+        this.dtoConverter = dtoConverter;
     }
+
 
     @Operation(summary = "Search flights. One-way or Two-way", description = "Send the necessary details. If arrival date is not sent. It will return a one way ticket. Otherwise it will return two tickets: First one is for leaving and the second one is for return ticket")
     @ApiResponse(responseCode = "200", description = "If the necessary parameters are valid it returns status code 200")
@@ -84,8 +90,9 @@ public class FlightController {
     @Scheduled(cron = "30 9 * * * ?", zone = "Europe/Paris")
     @PostMapping("/save")
     public ResponseEntity<String> saveFlightsFromApi() {
+
         try {
-            String results = this.pingApi(); // Fetch data from the third-party API
+            String results = pingApi(); // Fetch data from the third-party API
 
             // Convert the received JSON data into a list of FlightResponse objects
             ObjectMapper objectMapper = new ObjectMapper();
@@ -93,16 +100,19 @@ public class FlightController {
             objectMapper.registerModule(new JavaTimeModule());
 
             List<FlightResponse> apiFlights = objectMapper.readValue(results, typeFactory.constructCollectionType(List.class, FlightResponse.class));
-            DtoConverter dtoConverter = new DtoConverter();
-            List<Flight> flights = dtoConverter.convertToFlightList(apiFlights);
+
+            List<Flight> flights = DtoConverter.convertToFlightList(apiFlights);
+            log.debug("Size of flights: " + flights.size());
             List<FlightResponse> responseList = new ArrayList<>();
 
             // Save the fetched flights to the database
-            for(Flight flight : flights){
+            for (Flight flight : flights) {
+                Airport departureAirport = airportRepository.findByCity(flight.getDepartureAirport().getCity());
+                Airport arrivalAirport = airportRepository.findByCity(flight.getArrivalAirport().getCity());
 
-                flight.setDepartureAirport(flight.getDepartureAirport());
-                flight.setArrivalAirport(flight.getArrivalAirport());
-                FlightResponse response = dtoConverter.convertFlightToFlightResponse(flight);
+                flight.setDepartureAirport(departureAirport);
+                flight.setArrivalAirport(arrivalAirport);
+                FlightResponse response = DtoConverter.convertFlightToFlightResponse(flight);
                 responseList.add(response);
             }
             flightService.saveFlightsFromApiResponse(responseList);
@@ -119,11 +129,11 @@ public class FlightController {
         String results = pingApi();
         log.debug(results);
         String fetchedData = ""; // Declare it here with an initial value
-
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
-
+            objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+            objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
             TypeFactory typeFactory = objectMapper.getTypeFactory();
             List<FlightResponse> apiFlights = objectMapper.readValue(results, typeFactory.constructCollectionType(List.class, FlightResponse.class));
 
@@ -138,7 +148,6 @@ public class FlightController {
 
     private String pingApi() {
         URL url = null;
-
         try {
             url = new URL("https://659c20abd565feee2dac7859.mockapi.io/flights/v1/flights");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();

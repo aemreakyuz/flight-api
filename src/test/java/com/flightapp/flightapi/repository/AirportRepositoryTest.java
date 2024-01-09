@@ -16,9 +16,7 @@ public class AirportRepositoryTest {
 
     private AirportRepository airportRepository;
 
-
     @Autowired
-
     public AirportRepositoryTest(AirportRepository airportRepository) {
         this.airportRepository = airportRepository;
     }
@@ -35,7 +33,7 @@ public class AirportRepositoryTest {
 
     @BeforeEach
     void setUp(){
-        createAirport("Berlin");
+        createAirport("Porto");
     }
 
     @AfterEach
@@ -46,15 +44,15 @@ public class AirportRepositoryTest {
     @DisplayName("Can find airport by city")
     @Test
     void findByCity(){
-        Airport foundAirport = airportRepository.findByCity("Berlin");
+        Airport foundAirport = airportRepository.findByCity("Porto");
         assertNotNull(foundAirport);
-        assertEquals("Berlin", foundAirport.getCity());
+        assertEquals("Porto", foundAirport.getCity());
     }
 
     @DisplayName("Can't find airport by city")
     @Test
     void findByCityFail(){
-        Airport foundAirport = airportRepository.findByCity("Cairo");
+        Airport foundAirport = airportRepository.findByCity("Porto");
         assertNull(foundAirport);
     }
 

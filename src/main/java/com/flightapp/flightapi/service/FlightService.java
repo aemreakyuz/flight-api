@@ -77,7 +77,6 @@ public class FlightService {
         List<Flight> flights = flightResponses.stream()
                 .map(this::convertToFlight)
                 .collect(Collectors.toList());
-
         flightRepository.saveAll(flights);
     }
 

@@ -6,6 +6,7 @@ import com.flightapp.flightapi.entity.Airport;
 import com.flightapp.flightapi.entity.Flight;
 import com.flightapp.flightapi.exception.AirportException;
 import com.flightapp.flightapi.repository.AirportRepository;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -14,10 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@NoArgsConstructor
 public class DtoConverter {
 
+
+    private static AirportRepository airportRepository;
+
     @Autowired
-    private AirportRepository airportRepository;
+    public DtoConverter(AirportRepository airportRepository) {
+        this.airportRepository = airportRepository;
+    }
 
     public static AirportResponse convertToAirportResponse(Airport airport){
         return new AirportResponse(airport.getId(), airport.getCity());
@@ -27,11 +34,12 @@ public class DtoConverter {
         return new FlightResponse(flight.getId(), flight.getPrice(), departureAirport, arrivalAirport, flight.getDepartureDate(), flight.getArrivalDate());
     }
 
-    public Flight convertToFlightEntity(FlightResponse flightResponse) {
+    public static Flight convertToFlightEntity(FlightResponse flightResponse) {
 
         Flight newFlight = new Flight();
         newFlight.setId(flightResponse.id());
         newFlight.setPrice(flightResponse.price());
+
 
         Airport departureAirport = airportRepository.findByCity(flightResponse.departureAirport().city());
         if (departureAirport != null) {
@@ -54,6 +62,7 @@ public class DtoConverter {
     }
 
     public Airport convertToAirportEntity(AirportResponse airportResponse){
+
         Airport airportEntity = airportRepository.findByCity(airportResponse.city());
         if(airportEntity == null){
             airportEntity = new Airport();
@@ -62,22 +71,21 @@ public class DtoConverter {
       return airportEntity;
     }
 
-    public AirportResponse convertAirportToAirportResponse(Airport airport) {
+    public static AirportResponse convertAirportToAirportResponse(Airport airport) {
         return new AirportResponse(airport.getId(), airport.getCity());
     }
 
 
-    public List<Flight> convertToFlightList(List<FlightResponse> flightResponses) {
+    public static List<Flight> convertToFlightList(List<FlightResponse> flightResponses) {
         List<Flight> flights = new ArrayList<>();
         for (FlightResponse response : flightResponses) {
-            DtoConverter dtoConverter = new DtoConverter();
-            Flight flight = dtoConverter.convertToFlightEntity(response);
+            Flight flight = convertToFlightEntity(response);
             flights.add(flight);
         }
         return flights;
     }
 
-    public FlightResponse convertFlightToFlightResponse(Flight flight) {
+    public static FlightResponse convertFlightToFlightResponse(Flight flight) {
         return new FlightResponse(
                 flight.getId(),
                 flight.getPrice(),
