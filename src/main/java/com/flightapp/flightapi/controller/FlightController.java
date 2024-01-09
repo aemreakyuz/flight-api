@@ -82,11 +82,14 @@ public class FlightController {
         return flightService.updateFlight(id, flightDetails);
     }
 
+
+    @Operation(summary = "Get all flights", description = "Returns all flights in database")
     @GetMapping("/all")
     public List<Flight> getAllFlights() {
         return flightService.findAll();
     }
 
+    @Operation(summary = "Delete flight by its id", description = "Send the desired flight id. It will be deleted.")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteFlightByID(@PathVariable Long id) {
         Flight removed = flightService.removeFlightById(id);
@@ -98,6 +101,7 @@ public class FlightController {
         }
     }
 
+    @Operation(summary = "Fetch Data from a Mock Api ", description = "Gives all data from api endpoint.")
     @GetMapping("/fetch")
     public ResponseEntity<String> fetchApi() throws JsonProcessingException {
         String results = scheduleFlightService.pingApi();
