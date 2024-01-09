@@ -82,8 +82,21 @@ public class FlightController {
         return flightService.updateFlight(id, flightDetails);
     }
 
+    @GetMapping("/all")
+    public List<Flight> getAllFlights() {
+        return flightService.findAll();
+    }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteFlightByID(@PathVariable Long id) {
+        Flight removed = flightService.removeFlightById(id);
+        if (removed != null) {
 
+            return ResponseEntity.ok("Flight with ID: " + id + " Departure Airport: " + removed.getDepartureAirport() + "Arrival Airport: " + removed.getArrivalAirport() + " deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Flight with ID " + id + " not found.");
+        }
+    }
 
     @GetMapping("/fetch")
     public ResponseEntity<String> fetchApi() throws JsonProcessingException {

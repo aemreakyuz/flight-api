@@ -33,6 +33,10 @@ public class FlightService {
         this.airportRepository = airportRepository;
     }
 
+    public List<Flight> findAll() {
+        return flightRepository.findAll();
+    }
+
     public List<RoundTripFlightResponse> searchFlightsWithReturn(LocalDate departureDate, LocalDate arrivalDate, String departureAirport, String arrivalAirport) {
         List<Flight> flights = flightRepository.searchReturnFlights(departureDate, arrivalDate, departureAirport, arrivalAirport);
         List<RoundTripFlightResponse> response = new ArrayList<>();
@@ -179,9 +183,7 @@ public class FlightService {
     }
 
 
-    public List<Flight> findAll() {
-        return flightRepository.findAll();
-    }
+
 
 
 
