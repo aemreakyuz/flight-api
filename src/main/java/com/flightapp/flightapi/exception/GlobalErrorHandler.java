@@ -23,6 +23,4 @@ public class GlobalErrorHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-
-
 }

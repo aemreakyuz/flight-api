@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.flightapp.flightapi.converter.DtoConverter;
 import com.flightapp.flightapi.dto.FlightResponse;
 import com.flightapp.flightapi.dto.RoundTripFlightResponse;
 import com.flightapp.flightapi.entity.Flight;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
@@ -25,6 +27,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
@@ -32,6 +35,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/flights")
 public class FlightController {
+
 
     private FlightService flightService;
     private AirportService airportService;
@@ -42,8 +46,8 @@ public class FlightController {
         this.flightService = flightService;
         this.airportService = airportService;
 
-    }
 
+    }
 
     @Operation(summary = "Search flights. One-way or Two-way", description = "Send the necessary details. If arrival date is not sent. It will return a one way ticket. Otherwise it will return two tickets: First one is for leaving and the second one is for return ticket")
     @ApiResponse(responseCode = "200", description = "If the necessary parameters are valid it returns status code 200")
@@ -77,6 +81,7 @@ public class FlightController {
         return flightService.updateFlight(id, flightDetails);
     }
 
+    @Scheduled(cron = "30 9 * * * ?", zone = "Europe/Paris")
     @PostMapping("/save")
     public ResponseEntity<String> saveFlightsFromApi() {
         try {
@@ -86,10 +91,21 @@ public class FlightController {
             ObjectMapper objectMapper = new ObjectMapper();
             TypeFactory typeFactory = objectMapper.getTypeFactory();
             objectMapper.registerModule(new JavaTimeModule());
+
             List<FlightResponse> apiFlights = objectMapper.readValue(results, typeFactory.constructCollectionType(List.class, FlightResponse.class));
+            DtoConverter dtoConverter = new DtoConverter();
+            List<Flight> flights = dtoConverter.convertToFlightList(apiFlights);
+            List<FlightResponse> responseList = new ArrayList<>();
 
             // Save the fetched flights to the database
-            flightService.saveFlightsFromApiResponse(apiFlights);
+            for(Flight flight : flights){
+
+                flight.setDepartureAirport(flight.getDepartureAirport());
+                flight.setArrivalAirport(flight.getArrivalAirport());
+                FlightResponse response = dtoConverter.convertFlightToFlightResponse(flight);
+                responseList.add(response);
+            }
+            flightService.saveFlightsFromApiResponse(responseList);
 
             return ResponseEntity.ok("Flights saved successfully!");
         } catch (Exception e) {

@@ -105,12 +105,13 @@ public class FlightService {
 
     public List<?> addFlight(Flight flight) {
 
-        Optional<Airport> departureAirportOptional = airportRepository.findById(flight.getDepartureAirport().getId());
-        Optional<Airport> arrivalAirportOptional = airportRepository.findById(flight.getArrivalAirport().getId());
+        Airport  departureAirport = airportRepository.findByCity(flight.getDepartureAirport().getCity());
+        Airport  arrivalAirport = airportRepository.findByCity(flight.getArrivalAirport().getCity());
 
-        if (departureAirportOptional.isPresent() && arrivalAirportOptional.isPresent()) {
-            Airport departureAirport = departureAirportOptional.get();
-            Airport arrivalAirport = arrivalAirportOptional.get();
+        if (departureAirport !=null && arrivalAirport != null) {
+
+            flight.setDepartureAirport(departureAirport);
+            flight.setArrivalAirport(arrivalAirport);
 
             Flight savedDepartureFlight = flightRepository.save(flight);
             FlightResponse departingFlightResponse = DtoConverter.convertToFlightResponse(savedDepartureFlight, new AirportResponse(departureAirport.getId(), departureAirport.getCity()), new AirportResponse(arrivalAirport.getId(), arrivalAirport.getCity()));

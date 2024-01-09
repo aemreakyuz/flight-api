@@ -8,7 +8,12 @@ import com.flightapp.flightapi.exception.AirportException;
 import com.flightapp.flightapi.repository.AirportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
 public class DtoConverter {
 
     @Autowired
@@ -23,6 +28,7 @@ public class DtoConverter {
     }
 
     public Flight convertToFlightEntity(FlightResponse flightResponse) {
+
         Flight newFlight = new Flight();
         newFlight.setId(flightResponse.id());
         newFlight.setPrice(flightResponse.price());
@@ -46,4 +52,40 @@ public class DtoConverter {
 
         return newFlight;
     }
+
+    public Airport convertToAirportEntity(AirportResponse airportResponse){
+        Airport airportEntity = airportRepository.findByCity(airportResponse.city());
+        if(airportEntity == null){
+            airportEntity = new Airport();
+            airportEntity.setCity(airportResponse.city());
+        }
+      return airportEntity;
+    }
+
+    public AirportResponse convertAirportToAirportResponse(Airport airport) {
+        return new AirportResponse(airport.getId(), airport.getCity());
+    }
+
+
+    public List<Flight> convertToFlightList(List<FlightResponse> flightResponses) {
+        List<Flight> flights = new ArrayList<>();
+        for (FlightResponse response : flightResponses) {
+            DtoConverter dtoConverter = new DtoConverter();
+            Flight flight = dtoConverter.convertToFlightEntity(response);
+            flights.add(flight);
+        }
+        return flights;
+    }
+
+    public FlightResponse convertFlightToFlightResponse(Flight flight) {
+        return new FlightResponse(
+                flight.getId(),
+                flight.getPrice(),
+                convertAirportToAirportResponse(flight.getDepartureAirport()),
+                convertAirportToAirportResponse(flight.getArrivalAirport()),
+                flight.getDepartureDate(),
+                flight.getArrivalDate()
+        );
+    }
+
 }

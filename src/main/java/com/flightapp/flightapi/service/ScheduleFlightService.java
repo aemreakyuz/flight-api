@@ -19,7 +19,7 @@ public class ScheduleFlightService {
     @Autowired
     private AirportService airportService;
 
-    //başka proje oluşturup local de bu metodu çalıştır. //rest template
+
     @Scheduled(cron = "30 9 * * * ?", zone = "Europe/Paris")
     public void addScheduledFlight() {
 
